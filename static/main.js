@@ -756,3 +756,82 @@ function bondSegments(order, start, end, offsetDist) {
   }
   return segments;
 }
+
+/* =========================
+   Drug Interaction Logic
+   ========================= */
+
+let selectedSmiles = [];
+
+// 🔹 Handles selection of drug SMILES
+function handleDrugSelection(smiles) {
+  selectedSmiles.push(smiles);
+  if (selectedSmiles.length === 2) {
+    sendInteractionRequest(selectedSmiles[0], selectedSmiles[1]);
+    selectedSmiles = []; // reset for next pair
+  }
+}
+
+// 🔹 Sends POST request to Flask backend
+async function sendInteractionRequest(smiles1, smiles2) {
+  try {
+    const response = await fetch("/predict", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        drug1_name: smiles1,
+        drug2_name: smiles2
+      })
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      showInteractionResult(result.prediction, smiles1, smiles2);
+    } else {
+      showInteractionError(result.error || "Prediction failed.");
+    }
+  } catch (err) {
+    console.error("Interaction request failed:", err);
+    showInteractionError("Something went wrong.");
+  }
+}
+
+// 🔹 Displays result in a container
+function showInteractionResult(prediction, smiles1, smiles2) {
+  const container = document.getElementById("sceneContainer");
+  container.innerHTML = `
+    <div class="result">
+      <h3>Interaction Result</h3>
+      <p><strong>${smiles1}</strong> + <strong>${smiles2}</strong> → 
+      ${prediction === 1 ? "⚠️ Interaction Detected" : "✅ No Interaction"}</p>
+    </div>
+  `;
+}
+
+// 🔹 Displays error messages
+function showInteractionError(message) {
+  const container = document.getElementById("sceneContainer");
+  container.innerHTML = `
+    <div class="error">
+      <h3>Error</h3>
+      <p>${message}</p>
+    </div>
+  `;
+}
+
+// 🔹 Attach click handlers to drug list items
+document.addEventListener("DOMContentLoaded", () => {
+  const drugList = document.getElementById("drugList");
+  if (drugList) {
+    drugList.addEventListener("click", (e) => {
+      if (e.target && e.target.tagName === "LI") {
+        const smiles = e.target.getAttribute("data-smiles");
+        if (smiles) {
+          handleDrugSelection(smiles);
+        }
+      }
+    });
+  }
+});
