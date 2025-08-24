@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BLOB</title>
-  <link rel="stylesheet" href="./style.css" />
+  <!-- ✅ Use Flask's static path for CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
   <!-- Logo Area -->
@@ -12,87 +13,80 @@
 
   <!-- Main UI -->
   <div class="ui">
-    <button id="addBtn"></button>
+    <button id="addBtn">Add Drug</button> <!-- ✅ Added label -->
   </div>
-  
 
   <!-- Scene Container -->
   <div id="sceneContainer"></div>
-
 
   <!-- Overlay Search -->
   <div id="overlay">
     <div class="overlay-content">
       <input type="text" id="searchBar" placeholder="Search..." />
-     
+      <ul id="options"></ul> <!-- ✅ Properly closed -->
 
-<ul id="options"></ul>
+      <!-- ✅ Load CSV from Flask static folder -->
+      <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+      <script>
+        fetch("/static/ram_friendly_model_data.csv")
+          .then(response => response.text())
+          .then(csvText => {
+            Papa.parse(csvText, {
+              header: true,
+              complete: function(results) {
+                const rows = results.data;
+                const optionsList = document.getElementById("options");
+                const searchBar = document.getElementById("searchBar");
+                optionsList.innerHTML = "";
 
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script>
-fetch("ram_friendly_model_data.csv")
-  .then(response => response.text())
-  .then(csvText => {
-    Papa.parse(csvText, {
-      header: true,
-      complete: function(results) {
-        const rows = results.data;
-        const optionsList = document.getElementById("options");
-        const searchBar = document.getElementById("searchBar");
-        optionsList.innerHTML = "";
+                function triggerSearch(value) {
+                  searchBar.value = value;
+                  const enterEvent = new KeyboardEvent("keydown", { key: "Enter" });
+                  searchBar.dispatchEvent(enterEvent);
+                  setTimeout(() => {
+                    searchBar.value = "";
+                  }, 5);
+                }
 
-        // 🔹 utility: trigger same logic as pressing Enter
-        function triggerSearch(value) {
-          searchBar.value = value;
+                rows.forEach(row => {
+                  const drug1 = row["drug_1_name"];
+                  const drug2 = row["drug_2_name"];
+                  const c2 = row["smiles_1"];
+                  const d2 = row["smiles_2"];
 
-          // dispatch "Enter" so your existing search logic runs
-          const enterEvent = new KeyboardEvent("keydown", { key: "Enter" });
-          searchBar.dispatchEvent(enterEvent);
+                  if (drug1 && c2 && c2.trim() !== "") {
+                    const li1 = document.createElement("li");
+                    li1.textContent = drug1;
+                    li1.addEventListener("click", (e) => {
+                      e.stopPropagation();
+                      triggerSearch(c2);
+                      console.log(c2);
+                    });
+                    optionsList.appendChild(li1);
+                  }
 
-          // clear afterwards
-          setTimeout(() => {
-            searchBar.value = "";
-          }, 5); // small delay to ensure Enter logic runs first
-        }
-
-        rows.forEach(row => {
-          const drug1 = row["drug_1_name"];
-          const drug2 = row["drug_2_name"];
-          const c2 = row["smiles_1"];
-          const d2 = row["smiles_2"];
-
-          if (drug1 && c2 && c2.trim() !== "") {
-            const li1 = document.createElement("li");
-            li1.textContent = drug1;
-            li1.addEventListener("click", (e) => {
-              e.stopPropagation();
-              triggerSearch(c2);   // ✅ put c2, render, then clear
-              console.log(c2);
+                  if (drug2 && d2 && d2.trim() !== "") {
+                    const li2 = document.createElement("li");
+                    li2.textContent = drug2;
+                    li2.addEventListener("click", (e) => {
+                      e.stopPropagation();
+                      triggerSearch(d2);
+                      console.log(d2);
+                    });
+                    optionsList.appendChild(li2);
+                  }
+                });
+              }
             });
-            optionsList.appendChild(li1);
-          }
-
-          if (drug2 && d2 && d2.trim() !== "") {
-            const li2 = document.createElement("li");
-            li2.textContent = drug2;
-            li2.addEventListener("click", (e) => {
-              e.stopPropagation();
-              triggerSearch(d2);   // ✅ put d2, render, then clear
-              console.log(d2);
-            });
-            optionsList.appendChild(li2);
-          }
-        });
-      }
-    });
-  });
-</script>
-
-
+          });
+      </script>
     </div>
   </div>
-<script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
 
-  <script type="module" src="./main.js"></script>
+  <!-- RDKit JS (if needed for frontend rendering) -->
+  <script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
+
+  <!-- ✅ Use Flask's static path for JS -->
+  <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
