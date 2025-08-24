@@ -4,19 +4,53 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BLOB</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <style>
+    ul#drugList {
+      list-style: none;
+      padding: 0;
+      margin: 20px auto;
+      max-width: 400px;
+    }
+    ul#drugList li {
+      background: #e0f7fa;
+      margin: 10px;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    ul#drugList li:hover {
+      background: #b2ebf2;
+    }
+    .result, .error {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .result h3, .error h3 {
+      margin-top: 0;
+    }
+  </style>
 </head>
 <body>
-  <!-- Logo Area -->
   <header id="logo">LOGO</header>
 
-  <!-- Main UI -->
   <div class="ui">
     <button id="addBtn">Add Drug</button>
     <button id="checkBtn">Check Interaction</button>
   </div>
 
-  <!-- Scene Container -->
+  <!-- Manual Drug Selection -->
+  <ul id="drugList">
+    <li data-smiles="CCO">Ethanol</li>
+    <li data-smiles="CC(=O)O">Acetic Acid</li>
+    <li data-smiles="C1=CC=CC=C1">Benzene</li>
+    <li data-smiles="CN1CCCC1C2=CC=CC=C2">Diphenhydramine</li>
+  </ul>
+
   <div id="sceneContainer"></div>
 
   <!-- Overlay Search -->
@@ -27,7 +61,7 @@
 
       <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
       <script>
-        fetch("ram_friendly_model_data.csv")
+        fetch("/static/ram_friendly_model_data.csv")
           .then(response => response.text())
           .then(csvText => {
             Papa.parse(csvText, {
@@ -56,20 +90,16 @@
                   if (drug1 && c2 && c2.trim() !== "") {
                     const li1 = document.createElement("li");
                     li1.textContent = drug1;
-                    li1.addEventListener("click", (e) => {
-                      e.stopPropagation();
-                      triggerSearch(c2);
-                    });
+                    li1.setAttribute("data-smiles", c2);
+                    li1.addEventListener("click", () => handleDrugSelection(c2));
                     optionsList.appendChild(li1);
                   }
 
                   if (drug2 && d2 && d2.trim() !== "") {
                     const li2 = document.createElement("li");
                     li2.textContent = drug2;
-                    li2.addEventListener("click", (e) => {
-                      e.stopPropagation();
-                      triggerSearch(d2);
-                    });
+                    li2.setAttribute("data-smiles", d2);
+                    li2.addEventListener("click", () => handleDrugSelection(d2));
                     optionsList.appendChild(li2);
                   }
                 });
@@ -80,10 +110,7 @@
     </div>
   </div>
 
-  <!-- RDKit JS -->
   <script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
-
-  <!-- Main JS -->
-  <script type="module" src="main.js"></script>
+  <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
