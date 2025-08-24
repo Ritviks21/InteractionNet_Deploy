@@ -36,14 +36,16 @@
   </style>
 </head>
 <body>
+  <!-- Logo Area -->
   <header id="logo">LOGO</header>
 
+  <!-- Main UI -->
   <div class="ui">
     <button id="addBtn">Add Drug</button>
     <button id="checkBtn">Check Interaction</button>
   </div>
 
-  <!-- Manual Drug Selection -->
+  <!-- Drug Selection List -->
   <ul id="drugList">
     <li data-smiles="CCO">Ethanol</li>
     <li data-smiles="CC(=O)O">Acetic Acid</li>
@@ -51,6 +53,7 @@
     <li data-smiles="CN1CCCC1C2=CC=CC=C2">Diphenhydramine</li>
   </ul>
 
+  <!-- Scene Container -->
   <div id="sceneContainer"></div>
 
   <!-- Overlay Search -->
@@ -110,7 +113,10 @@
     </div>
   </div>
 
+  <!-- RDKit JS -->
   <script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
+
+  <!-- Main JS -->
   <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
