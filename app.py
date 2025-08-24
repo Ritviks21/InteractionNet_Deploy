@@ -51,7 +51,8 @@ def find_smiles(drug_name, data_df):
 @app.route('/')
 def home():
     """Serves the main index.html file."""
-    return render_template('index.html')
+    return render_template('index.html') , render_template('main.js') 
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -76,7 +77,7 @@ def predict():
     prediction = model.predict(combined_fp)[0]
     
     # Send the result back to the frontend
-    return jsonify({'prediction': int(prediction)}) , render_template('main.js')
+    return jsonify({'prediction': int(prediction)}) 
 
 
 if __name__ == '__main__':
