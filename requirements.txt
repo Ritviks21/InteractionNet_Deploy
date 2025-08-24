@@ -1,8 +1,9 @@
-# requirements.txt
-Flask==3.0.0
-gunicorn==21.2.0
-pandas==1.5.3
-scikit-learn==1.3.0
-joblib==1.3.2
-rdkit==2023.3.3
-numpy==1.24.3
+# requirements.txt (Updated, Compatible Versions)
+
+Flask>=2.0.0
+gunicorn
+pandas
+scikit-learn
+joblib
+rdkit
+numpy
