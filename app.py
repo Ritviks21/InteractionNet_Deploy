@@ -76,7 +76,8 @@ def predict():
     prediction = model.predict(combined_fp)[0]
     
     # Send the result back to the frontend
-    return jsonify({'prediction': int(prediction)})
+    return jsonify({'prediction': int(prediction)}) , return render_template('main.js')
+
 
 if __name__ == '__main__':
     # This part is for local testing and won't be used by Render
