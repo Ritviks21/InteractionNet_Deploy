@@ -4,8 +4,36 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BLOB</title>
-  <!-- ✅ Use Flask's static path for CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <style>
+    ul#drugList {
+      list-style: none;
+      padding: 0;
+      margin: 20px auto;
+      max-width: 400px;
+    }
+    ul#drugList li {
+      background: #e0f7fa;
+      margin: 10px;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    ul#drugList li:hover {
+      background: #b2ebf2;
+    }
+    .result, .error {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .result h3, .error h3 {
+      margin-top: 0;
+    }
+  </style>
 </head>
 <body>
   <!-- Logo Area -->
@@ -13,8 +41,17 @@
 
   <!-- Main UI -->
   <div class="ui">
-    <button id="addBtn">Add Drug</button> <!-- ✅ Added label -->
+    <button id="addBtn">Add Drug</button>
   </div>
+
+  <!-- Drug Selection List -->
+  <ul id="drugList">
+    <li data-smiles="CCO">Ethanol</li>
+    <li data-smiles="CC(=O)O">Acetic Acid</li>
+    <li data-smiles="C1=CC=CC=C1">Benzene</li>
+    <li data-smiles="CN1CCCC1C2=CC=CC=C2">Diphenhydramine</li>
+    <!-- Add more drugs as needed -->
+  </ul>
 
   <!-- Scene Container -->
   <div id="sceneContainer"></div>
@@ -23,9 +60,8 @@
   <div id="overlay">
     <div class="overlay-content">
       <input type="text" id="searchBar" placeholder="Search..." />
-      <ul id="options"></ul> <!-- ✅ Properly closed -->
+      <ul id="options"></ul>
 
-      <!-- ✅ Load CSV from Flask static folder -->
       <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
       <script>
         fetch("/static/ram_friendly_model_data.csv")
@@ -57,6 +93,7 @@
                   if (drug1 && c2 && c2.trim() !== "") {
                     const li1 = document.createElement("li");
                     li1.textContent = drug1;
+                    li1.setAttribute("data-smiles", c2);
                     li1.addEventListener("click", (e) => {
                       e.stopPropagation();
                       triggerSearch(c2);
@@ -68,6 +105,7 @@
                   if (drug2 && d2 && d2.trim() !== "") {
                     const li2 = document.createElement("li");
                     li2.textContent = drug2;
+                    li2.setAttribute("data-smiles", d2);
                     li2.addEventListener("click", (e) => {
                       e.stopPropagation();
                       triggerSearch(d2);
@@ -83,10 +121,10 @@
     </div>
   </div>
 
-  <!-- RDKit JS (if needed for frontend rendering) -->
+  <!-- RDKit JS -->
   <script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
 
-  <!-- ✅ Use Flask's static path for JS -->
+  <!-- Main JS -->
   <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
