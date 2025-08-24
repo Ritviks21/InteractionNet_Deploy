@@ -756,3 +756,98 @@ function bondSegments(order, start, end, offsetDist) {
   }
   return segments;
 }
+
+/* =========================
+   Drug Interaction Logic
+   ========================= */
+
+let selectedSmiles = [];
+
+function handleDrugSelection(smiles) {
+  if (selectedSmiles.length < 2) {
+    selectedSmiles.push(smiles);
+    console.log("Selected:", selectedSmiles);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const drugList = document.getElementById("drugList");
+  if (drugList) {
+    drugList.addEventListener("click", (e) => {
+      if (e.target && e.target.tagName === "LI") {
+        const smiles = e.target.getAttribute("data-smiles");
+        if (smiles) {
+          handleDrugSelection(smiles);
+        }
+      }
+    });
+  }
+
+  const checkBtn = document.getElementById("checkBtn");
+  if (checkBtn) {
+    checkBtn.addEventListener("click", () => {
+      if (selectedSmiles.length === 2) {
+        sendInteractionRequest(selectedSmiles[0], selectedSmiles[1]);
+      } else {
+        alert("Please select two drugs before checking interaction.");
+      }
+    });
+  }
+});
+
+async function sendInteractionRequest(smiles1, smiles2) {
+  try {
+    const response = await fetch("/predict", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        drug1_name: smiles1,
+        drug2_name: smiles2
+      })
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      showInteractionResult(result.prediction, smiles1, smiles2);
+    } else {
+      showInteractionError(result.error || "Prediction failed.");
+    }
+  } catch (err) {
+    console.error("Interaction request failed:", err);
+    showInteractionError("Something went wrong.");
+  }
+}
+
+function showInteractionResult(prediction, smiles1, smiles2) {
+  const container = document.getElementById("sceneContainer");
+  container.innerHTML = `
+    <div class="result">
+      <h3>Interaction Result</h3>
+      <p><strong>${smiles1}</strong> + <strong>${smiles2}</strong> → 
+      ${prediction === 1 ? "⚠️ Interaction Detected" : "✅ No Interaction"}</p>
+      <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+        <div id="mol1"></div>
+        <div id="mol2"></div>
+      </div>
+    </div>
+  `;
+
+  // Render both molecules
+  createMoleculeSceneFromSmiles(smiles1, document.getElementById("mol1"));
+  createMoleculeSceneFromSmiles(smiles2, document.getElementById("mol2"));
+
+  selectedSmiles = []; // reset after rendering
+}
+
+function showInteractionError(message) {
+  const container = document.getElementById("sceneContainer");
+  container.innerHTML = `
+    <div class="error">
+      <h3>Error</h3>
+      <p>${message}</p>
+    </div>
+  `;
+  selectedSmiles = [];
+}
