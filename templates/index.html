@@ -36,24 +36,21 @@
   </style>
 </head>
 <body>
-  <!-- Logo Area -->
   <header id="logo">LOGO</header>
 
-  <!-- Main UI -->
   <div class="ui">
     <button id="addBtn">Add Drug</button>
+    <button id="checkBtn">Check Interaction</button>
   </div>
 
-  <!-- Drug Selection List -->
+  <!-- Manual Drug Selection -->
   <ul id="drugList">
     <li data-smiles="CCO">Ethanol</li>
     <li data-smiles="CC(=O)O">Acetic Acid</li>
     <li data-smiles="C1=CC=CC=C1">Benzene</li>
     <li data-smiles="CN1CCCC1C2=CC=CC=C2">Diphenhydramine</li>
-    <!-- Add more drugs as needed -->
   </ul>
 
-  <!-- Scene Container -->
   <div id="sceneContainer"></div>
 
   <!-- Overlay Search -->
@@ -94,11 +91,7 @@
                     const li1 = document.createElement("li");
                     li1.textContent = drug1;
                     li1.setAttribute("data-smiles", c2);
-                    li1.addEventListener("click", (e) => {
-                      e.stopPropagation();
-                      triggerSearch(c2);
-                      console.log(c2);
-                    });
+                    li1.addEventListener("click", () => handleDrugSelection(c2));
                     optionsList.appendChild(li1);
                   }
 
@@ -106,11 +99,7 @@
                     const li2 = document.createElement("li");
                     li2.textContent = drug2;
                     li2.setAttribute("data-smiles", d2);
-                    li2.addEventListener("click", (e) => {
-                      e.stopPropagation();
-                      triggerSearch(d2);
-                      console.log(d2);
-                    });
+                    li2.addEventListener("click", () => handleDrugSelection(d2));
                     optionsList.appendChild(li2);
                   }
                 });
@@ -121,10 +110,7 @@
     </div>
   </div>
 
-  <!-- RDKit JS -->
   <script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
-
-  <!-- Main JS -->
   <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
