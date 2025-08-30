@@ -1,4 +1,4 @@
-# app.py (Final Version with Probability)
+# app.py (Final Version with Correct Probability)
 
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
@@ -56,14 +56,14 @@ def predict():
     
     combined_fp = np.concatenate((fp1, fp2)).reshape(1, -1)
     
-    # --- THIS IS THE KEY CHANGE: GETTING THE PROBABILITY ---
+    # Get the prediction and the probabilities for both classes
     prediction = model.predict(combined_fp)[0]
-    probability = model.predict_proba(combined_fp)[0]
+    probabilities = model.predict_proba(combined_fp)[0]
     
-    # The probability of "High Risk" (class 1) is the second value
-    high_risk_prob = probability[1]
+    # Get the confidence score for the predicted class
+    confidence_score = probabilities[prediction]
     
     return jsonify({
         'prediction': int(prediction),
-        'probability': float(high_risk_prob) # Sending the probability to the frontend
+        'probability': float(confidence_score) # Send the correct confidence
     })
