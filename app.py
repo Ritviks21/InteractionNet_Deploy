@@ -1,4 +1,4 @@
-# app.py (Upgraded with Probability)
+# app.py (Final Version with Probability)
 
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
@@ -6,7 +6,6 @@ import joblib
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem
-import os
 
 app = Flask(__name__)
 
@@ -57,15 +56,14 @@ def predict():
     
     combined_fp = np.concatenate((fp1, fp2)).reshape(1, -1)
     
-    # --- MODIFICATION: Get both the prediction and the probability ---
+    # --- THIS IS THE KEY CHANGE: GETTING THE PROBABILITY ---
     prediction = model.predict(combined_fp)[0]
     probability = model.predict_proba(combined_fp)[0]
     
-    # The probability of "High Risk" is the second value in the array
+    # The probability of "High Risk" (class 1) is the second value
     high_risk_prob = probability[1]
     
-    # Send all the info back to the frontend
     return jsonify({
         'prediction': int(prediction),
-        'probability': float(high_risk_prob)
+        'probability': float(high_risk_prob) # Sending the probability to the frontend
     })
