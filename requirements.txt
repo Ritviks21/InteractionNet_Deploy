@@ -1,9 +1,8 @@
-# requirements.txt (Updated, Compatible Versions)
-
-Flask>=2.0.0
+# requirements.txt (Final Version with Matching scikit-learn)
+Flask
 gunicorn
 pandas
-scikit-learn
+scikit-learn==1.4.0
 joblib
 rdkit
 numpy
