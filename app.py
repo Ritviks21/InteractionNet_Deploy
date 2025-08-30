@@ -1,4 +1,4 @@
-# app.py (Final Corrected Version)
+# app.py (Final Version with Dropdowns)
 
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
@@ -8,18 +8,21 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 import os
 
-# Initialize the Flask application
 app = Flask(__name__)
 
-# --- Load the model and data files ---
+# --- Load Model and Data ---
 print("Loading the AI model and drug data...")
 try:
-    # Use the exact filenames you have in your repository
-    model_path = os.path.join(os.path.dirname(__file__), 'ddi_fingerprint_model.pkl')
-    data_path = os.path.join(os.path.dirname(__file__), 'ram_friendly_model_data.csv')
+    model = joblib.load('ddi_fingerprint_model.pkl')
+    drug_data = pd.read_csv('ram_friendly_model_data.csv')
     
-    model = joblib.load(model_path)
-    drug_data = pd.read_csv(data_path)
+    # Create a list of all unique drug names for the dropdowns
+    drug_names_1 = pd.Series(drug_data['drug_1_name'].unique())
+    drug_names_2 = pd.Series(drug_data['drug_2_name'].unique())
+    all_drug_names = pd.concat([drug_names_1, drug_names_2]).unique()
+    all_drug_names.sort() # Sort them alphabetically
+    drug_list = list(all_drug_names)
+
     print("Model and data loaded successfully.")
 except FileNotFoundError:
     print("ERROR: Could not find model or data files.")
@@ -37,11 +40,9 @@ def get_morgan_fingerprint(smiles_string, nBits=2048):
 
 def find_smiles(drug_name, data_df):
     drug_name_lower = drug_name.lower()
-    # Search in the first drug name column
     row = data_df[data_df['drug_1_name'].str.lower() == drug_name_lower]
     if not row.empty:
         return row.iloc[0]['smiles_1']
-    # If not found, search in the second drug name column
     row = data_df[data_df['drug_2_name'].str.lower() == drug_name_lower]
     if not row.empty:
         return row.iloc[0]['smiles_2']
@@ -51,6 +52,11 @@ def find_smiles(drug_name, data_df):
 @app.route('/')
 def home():
     return render_template('index.html')
+
+# NEW: This route sends the list of drug names to the frontend
+@app.route('/get_drug_names')
+def get_drug_names():
+    return jsonify(drug_list)
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -62,7 +68,7 @@ def predict():
     smiles2 = find_smiles(drug2_name, drug_data)
         
     if smiles1 is None or smiles2 is None:
-        return jsonify({'error': 'One or both drugs not found in the dataset.'}), 400
+        return jsonify({'error': 'One or both drugs not found in our dataset.'}), 400
 
     fp1 = get_morgan_fingerprint(smiles1)
     fp2 = get_morgan_fingerprint(smiles2)
