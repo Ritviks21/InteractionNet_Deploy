@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF--8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InteractionNet</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -12,10 +12,10 @@
         <p>Predictive Drug-Drug Interaction Model</p>
         <div class="input-area">
             <select id="drug1">
-                <option value="">Select Drug 1...</option>
+                <option value="">Loading Drugs...</option>
             </select>
             <select id="drug2">
-                <option value="">Select Drug 2...</option>
+                <option value="">Loading Drugs...</option>
             </select>
             <button id="predict-btn">Predict Interaction</button>
         </div>
@@ -35,7 +35,6 @@
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
     <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
