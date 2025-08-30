@@ -1,92 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BLOB</title>
-  <!-- ✅ Use Flask's static path for CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InteractionNet</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <!-- Logo Area -->
-  <header id="logo">LOGO</header>
-
-  <!-- Main UI -->
-  <div class="ui">
-    <button id="addBtn">Add Drug</button> <!-- ✅ Added label -->
-  </div>
-
-  <!-- Scene Container -->
-  <div id="sceneContainer"></div>
-
-  <!-- Overlay Search -->
-  <div id="overlay">
-    <div class="overlay-content">
-      <input type="text" id="searchBar" placeholder="Search..." />
-      <ul id="options"></ul> <!-- ✅ Properly closed -->
-
-      <!-- ✅ Load CSV from Flask static folder -->
-      <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-      <script>
-        fetch("/static/ram_friendly_model_data.csv")
-          .then(response => response.text())
-          .then(csvText => {
-            Papa.parse(csvText, {
-              header: true,
-              complete: function(results) {
-                const rows = results.data;
-                const optionsList = document.getElementById("options");
-                const searchBar = document.getElementById("searchBar");
-                optionsList.innerHTML = "";
-
-                function triggerSearch(value) {
-                  searchBar.value = value;
-                  const enterEvent = new KeyboardEvent("keydown", { key: "Enter" });
-                  searchBar.dispatchEvent(enterEvent);
-                  setTimeout(() => {
-                    searchBar.value = "";
-                  }, 5);
-                }
-
-                rows.forEach(row => {
-                  const drug1 = row["drug_1_name"];
-                  const drug2 = row["drug_2_name"];
-                  const c2 = row["smiles_1"];
-                  const d2 = row["smiles_2"];
-
-                  if (drug1 && c2 && c2.trim() !== "") {
-                    const li1 = document.createElement("li");
-                    li1.textContent = drug1;
-                    li1.addEventListener("click", (e) => {
-                      e.stopPropagation();
-                      triggerSearch(c2);
-                      console.log(c2);
-                    });
-                    optionsList.appendChild(li1);
-                  }
-
-                  if (drug2 && d2 && d2.trim() !== "") {
-                    const li2 = document.createElement("li");
-                    li2.textContent = drug2;
-                    li2.addEventListener("click", (e) => {
-                      e.stopPropagation();
-                      triggerSearch(d2);
-                      console.log(d2);
-                    });
-                    optionsList.appendChild(li2);
-                  }
-                });
-              }
-            });
-          });
-      </script>
+    <div class="container">
+        <h1>InteractionNet 🔬</h1>
+        <p>Predictive Drug-Drug Interaction Model</p>
+        <div class="input-area">
+            <input type="text" id="drug1" placeholder="Enter Drug 1 Name (e.g., Aspirin)">
+            <input type="text" id="drug2" placeholder="Enter Drug 2 Name (e.g., Warfarin)">
+            <button id="predict-btn">Predict Interaction</button>
+        </div>
+        <div id="result-area">
+            Enter two drug names to see the predicted interaction risk.
+        </div>
+        <div class="viewer-container">
+            <div class="viewer-box">
+                <h3>Drug 1 Viewer</h3>
+                <div id="viewer1" class="viewer"></div>
+            </div>
+            <div class="viewer-box">
+                <h3>Drug 2 Viewer</h3>
+                <div id="viewer2" class="viewer"></div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- RDKit JS (if needed for frontend rendering) -->
-  <script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
-
-  <!-- ✅ Use Flask's static path for JS -->
-  <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+    <script src="/static/main.js"></script>
 </body>
 </html>
