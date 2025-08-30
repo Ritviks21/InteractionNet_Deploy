@@ -1,4 +1,4 @@
-// static/main.js (Upgraded with Probability)
+// static/main.js (Final Version with Probability)
 
 document.getElementById('predict-btn').addEventListener('click', () => {
     const drug1Name = document.getElementById('drug1').value.trim();
@@ -10,8 +10,8 @@ document.getElementById('predict-btn').addEventListener('click', () => {
     }
 
     showResult('Analyzing...', 'loading', null);
-    renderMolecule('viewer1', drug1Name);
-    renderMolecule('viewer2', drug2Name);
+    renderMolecule('viewer1', drug1Name); // This function renders the 3D "output models"
+    renderMolecule('viewer2', drug2Name); // This function renders the 3D "output models"
     
     fetch('/predict', {
         method: 'POST',
@@ -28,12 +28,13 @@ document.getElementById('predict-btn').addEventListener('click', () => {
         if (data.error) {
             showResult(data.error, 'error', null);
         } else {
-            // --- MODIFICATION: Use the new probability value ---
             const probabilityPercent = (data.probability * 100).toFixed(1);
             if (data.prediction === 1) {
                 showResult(`Prediction: High Risk of Interaction`, 'error', probabilityPercent);
             } else {
-                showResult(`Prediction: Low Risk of Interaction`, 'success', probabilityPercent);
+                // For low risk, we show 100 - probability
+                const lowRiskPercent = (100 - (data.probability * 100)).toFixed(1);
+                showResult(`Prediction: Low Risk of Interaction`, 'success', lowRiskPercent);
             }
         }
     })
@@ -69,7 +70,7 @@ function renderMolecule(elementId, drugName) {
 function showResult(message, type, probability) {
     const resultArea = document.getElementById('result-area');
     
-    // --- MODIFICATION: Display the probability if it exists ---
+    // --- THIS IS THE KEY CHANGE: DISPLAYING THE PROBABILITY ---
     let displayText = message;
     if (probability !== null) {
         displayText += ` (Confidence: ${probability}%)`;
