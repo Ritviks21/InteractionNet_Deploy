@@ -1,4 +1,4 @@
-# app.py (Final, Optimized Version)
+# app.py (Upgraded with Probability)
 
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
@@ -10,10 +10,10 @@ import os
 
 app = Flask(__name__)
 
-# --- Global variables to hold our model and data ---
-model = None
-smiles_dict = {}
-drug_list = []
+# --- Load Model and Data ---
+model = joblib.load('ddi_fingerprint_model.pkl')
+drug_data = pd.read_csv('ram_friendly_model_data.csv')
+print("Model and data loaded successfully.")
 
 # --- Helper Functions ---
 def get_morgan_fingerprint(smiles_string, nBits=2048):
@@ -25,50 +25,29 @@ def get_morgan_fingerprint(smiles_string, nBits=2048):
     except:
         return np.zeros(nBits)
 
-def load_model_and_data():
-    """Load the model and prepare the data dictionary. This runs once."""
-    global model, smiles_dict, drug_list
-    
-    print("Loading the AI model and drug data...")
-    try:
-        model = joblib.load('ddi_fingerprint_model.pkl')
-        drug_data = pd.read_csv('ram_friendly_model_data.csv')
-        
-        # Create a fast-lookup dictionary for SMILES strings
-        for _, row in drug_data.iterrows():
-            smiles_dict[row['drug_1_name'].lower()] = row['smiles_1']
-            smiles_dict[row['drug_2_name'].lower()] = row['smiles_2']
-            
-        # Create a sorted list of all unique drug names for the dropdowns
-        drug_names_1 = pd.Series(drug_data['drug_1_name'].unique())
-        drug_names_2 = pd.Series(drug_data['drug_2_name'].unique())
-        all_drug_names = pd.concat([drug_names_1, drug_names_2]).unique()
-        all_drug_names.sort()
-        drug_list = list(all_drug_names)
-
-        print("Model and data loaded successfully.")
-    except FileNotFoundError:
-        print("ERROR: Could not find model or data files.")
-        exit()
+def find_smiles(drug_name, data_df):
+    drug_name_lower = drug_name.lower()
+    row = data_df[data_df['drug_1_name'].str.lower() == drug_name_lower]
+    if not row.empty:
+        return row.iloc[0]['smiles_1']
+    row = data_df[data_df['drug_2_name'].str.lower() == drug_name_lower]
+    if not row.empty:
+        return row.iloc[0]['smiles_2']
+    return None
 
 # --- Application Routes ---
 @app.route('/')
 def home():
     return render_template('index.html')
 
-@app.route('/get_drug_names')
-def get_drug_names():
-    return jsonify(drug_list)
-
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json()
-    drug1_name = data.get('drug1_name', '').lower()
-    drug2_name = data.get('drug2_name', '').lower()
+    drug1_name = data.get('drug1_name')
+    drug2_name = data.get('drug2_name')
 
-    # Use the fast dictionary to look up SMILES strings
-    smiles1 = smiles_dict.get(drug1_name)
-    smiles2 = smiles_dict.get(drug2_name)
+    smiles1 = find_smiles(drug1_name, drug_data)
+    smiles2 = find_smiles(drug2_name, drug_data)
         
     if smiles1 is None or smiles2 is None:
         return jsonify({'error': 'One or both drugs not found in our dataset.'}), 400
@@ -77,15 +56,16 @@ def predict():
     fp2 = get_morgan_fingerprint(smiles2)
     
     combined_fp = np.concatenate((fp1, fp2)).reshape(1, -1)
-    prediction = model.predict(combined_fp)[0]
     
-    return jsonify({'prediction': int(prediction)})
-
-# --- Main execution ---
-if __name__ == '__main__':
-    # This runs only when you test locally
-    load_model_and_data()
-    app.run(debug=True)
-else:
-    # This runs when deployed on Render
-    load_model_and_data()
+    # --- MODIFICATION: Get both the prediction and the probability ---
+    prediction = model.predict(combined_fp)[0]
+    probability = model.predict_proba(combined_fp)[0]
+    
+    # The probability of "High Risk" is the second value in the array
+    high_risk_prob = probability[1]
+    
+    # Send all the info back to the frontend
+    return jsonify({
+        'prediction': int(prediction),
+        'probability': float(high_risk_prob)
+    })
