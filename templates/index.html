@@ -11,12 +11,16 @@
         <h1>InteractionNet 🔬</h1>
         <p>Predictive Drug-Drug Interaction Model</p>
         <div class="input-area">
-            <input type="text" id="drug1" placeholder="Enter Drug 1 Name (e.g., Aspirin)">
-            <input type="text" id="drug2" placeholder="Enter Drug 2 Name (e.g., Warfarin)">
+            <select id="drug1">
+                <option value="">Select Drug 1...</option>
+            </select>
+            <select id="drug2">
+                <option value="">Select Drug 2...</option>
+            </select>
             <button id="predict-btn">Predict Interaction</button>
         </div>
         <div id="result-area">
-            Enter two drug names to see the predicted interaction risk.
+            Select two drugs from the dropdowns to begin.
         </div>
         <div class="viewer-container">
             <div class="viewer-box">
