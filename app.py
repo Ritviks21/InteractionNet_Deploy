@@ -1,4 +1,4 @@
-# app.py (Final Version with Dropdowns)
+# app.py
 
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
@@ -16,11 +16,11 @@ try:
     model = joblib.load('ddi_fingerprint_model.pkl')
     drug_data = pd.read_csv('ram_friendly_model_data.csv')
     
-    # Create a list of all unique drug names for the dropdowns
+    # Create a sorted list of all unique drug names for the dropdowns
     drug_names_1 = pd.Series(drug_data['drug_1_name'].unique())
     drug_names_2 = pd.Series(drug_data['drug_2_name'].unique())
     all_drug_names = pd.concat([drug_names_1, drug_names_2]).unique()
-    all_drug_names.sort() # Sort them alphabetically
+    all_drug_names.sort()
     drug_list = list(all_drug_names)
 
     print("Model and data loaded successfully.")
@@ -53,7 +53,7 @@ def find_smiles(drug_name, data_df):
 def home():
     return render_template('index.html')
 
-# NEW: This route sends the list of drug names to the frontend
+# This new route sends the drug list to the frontend
 @app.route('/get_drug_names')
 def get_drug_names():
     return jsonify(drug_list)
@@ -68,7 +68,7 @@ def predict():
     smiles2 = find_smiles(drug2_name, drug_data)
         
     if smiles1 is None or smiles2 is None:
-        return jsonify({'error': 'One or both drugs not found in our dataset.'}), 400
+        return jsonify({'error': 'One or both drugs not found in the dataset.'}), 400
 
     fp1 = get_morgan_fingerprint(smiles1)
     fp2 = get_morgan_fingerprint(smiles2)
