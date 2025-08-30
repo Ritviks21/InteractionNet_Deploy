@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InteractionNet</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
@@ -15,9 +15,12 @@
             <input type="text" id="drug2" placeholder="Enter Drug 2 Name (e.g., Warfarin)">
             <button id="predict-btn">Predict Interaction</button>
         </div>
+        
+        <!-- This is the new, dedicated area for showing the output -->
         <div id="result-area">
             Enter two drug names to see the predicted interaction risk.
         </div>
+        
         <div class="viewer-container">
             <div class="viewer-box">
                 <h3>Drug 1 Viewer</h3>
@@ -30,8 +33,7 @@
         </div>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
-    <script src="/static/main.js"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
