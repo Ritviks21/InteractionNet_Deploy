@@ -1,4 +1,4 @@
-# requirements.txt (Final Version with Matching scikit-learn)
+# requirements.txt (Final Version)
 Flask
 gunicorn
 pandas
